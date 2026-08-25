@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+<title>Bếp nhà Mợ Hạnh — Sổ hoá đơn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --cream:#FBF3E4;
+    --paper:#FFFCF5;
+    --ink:#4A2E18;
+    --ink-soft:#8A6A4C;
+    --chili:#C1432E;
+    --chili-dark:#9E3121;
+    --herb:#5C7A52;
+    --herb-dark:#43602F;
+    --yolk:#E8A33D;
+    --yolk-soft:#F6DDA8;
+    --line: rgba(74,46,24,0.14);
+    --shadow: 0 10px 30px rgba(74,46,24,0.12);
+    --radius: 18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Be Vietnam Pro', system-ui, sans-serif;
+    background:
+      radial-gradient(circle at 15% 8%, rgba(232,163,61,0.10), transparent 45%),
+      radial-gradient(circle at 90% 5%, rgba(193,67,46,0.08), transparent 40%),
+      var(--cream);
+    color:var(--ink);
+    min-height:100vh;
+    padding-bottom:40px;
+  }
+  ::selection{ background:var(--yolk-soft); }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    padding:22px 16px 14px;
+    max-width:1100px;
+    margin:0 auto;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:16px;
+  }
+  .brand-mark{
+    width:52px;height:52px;border-radius:14px;
+    background:linear-gradient(155deg, var(--chili), var(--chili-dark));
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;flex-shrink:0;
+    box-shadow: 0 6px 14px rgba(193,67,46,0.35);
+    transform:rotate(-4deg);
+  }
+  .brand-text h1{
+    margin:0; font-size:1.5rem; font-weight:800; letter-spacing:-0.01em;
+    color:var(--chili-dark);
+    line-height:1.1;
+  }
+  .brand-text p{
+    margin:2px 0 0; font-size:0.8rem; color:var(--ink-soft); font-weight:500;
+    letter-spacing:0.02em;
+  }
+  .tabs{
+    display:flex; gap:8px; background:rgba(74,46,24,0.06);
+    padding:5px; border-radius:14px; width:max-content; max-width:100%;
+  }
+  .tab-btn{
+    border:none; background:transparent; padding:10px 18px; border-radius:10px;
+    font-family:inherit; font-weight:700; font-size:0.92rem; color:var(--ink-soft);
+    cursor:pointer; transition:all .18s ease; white-space:nowrap;
+  }
+  .tab-btn.active{ background:var(--paper); color:var(--chili-dark); box-shadow:var(--shadow); }
+
+  main{ max-width:1100px; margin:0 auto; padding:0 16px; }
+  .view{ display:none; }
+  .view.active{ display:block; animation:fadeIn .25s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+  /* ---------- Order view layout ---------- */
+  .order-layout{
+    display:grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap:22px;
+    align-items:start;
+  }
+  @media (max-width: 860px){
+    .order-layout{ grid-template-columns: 1fr; }
+  }
+
+  .card{
+    background:var(--paper);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    border:1px solid var(--line);
+  }
+  .field-card{ padding:18px 20px; margin-bottom:16px; }
+  .field-row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .field{ flex:1; min-width:180px; }
+  .field label{
+    display:block; font-size:0.76rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--ink-soft); margin-bottom:6px;
+  }
+  .field input{
+    width:100%; padding:11px 13px; border-radius:10px; border:1.5px solid var(--line);
+    font-family:inherit; font-size:0.98rem; color:var(--ink); background:#fff;
+    transition:border-color .15s;
+  }
+  .field input:focus{ outline:none; border-color:var(--yolk); }
+
+  .menu-section{ margin-bottom:16px; overflow:hidden; }
+  .menu-section-head{
+    display:flex; align-items:center; gap:10px; padding:16px 20px;
+    border-bottom:1px solid var(--line);
+  }
+  .menu-section-head .emoji{ font-size:1.3rem; }
+  .menu-section-head h2{
+    margin:0; font-size:1.08rem; font-weight:800; color:var(--chili-dark);
+    letter-spacing:-0.01em;
+  }
+  .menu-items{ padding:6px 8px; }
+  .menu-item{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 12px; border-radius:12px; transition:background .15s;
+  }
+  .menu-item:hover{ background:rgba(232,163,61,0.08); }
+  .menu-item-info{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .menu-item-info .name{ font-weight:600; font-size:0.95rem; color:var(--ink); }
+  .menu-item-info .price{ font-size:0.82rem; color:var(--ink-soft); font-family:'Space Mono', monospace; }
+  .qty-control{ display:flex; align-items:center; gap:0; flex-shrink:0; }
+  .qty-btn{
+    width:32px; height:32px; border-radius:9px; border:1.5px solid var(--line);
+    background:#fff; font-size:1.1rem; font-weight:700; color:var(--chili-dark);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    line-height:1; user-select:none; transition:transform .1s;
+  }
+  .qty-btn:active{ transform:scale(0.9); }
+  .qty-btn:disabled{ opacity:0.3; cursor:default; }
+  .qty-val{
+    width:34px; text-align:center; font-weight:700; font-family:'Space Mono', monospace;
+    font-size:0.95rem;
+  }
+
+  /* ---------- Summary / ticket preview ---------- */
+  .summary-col{ position:sticky; top:16px; }
+  .ticket{
+    background:var(--paper); border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:22px 20px 18px; position:relative; border:1px solid var(--line);
+  }
+  .ticket-clip{
+    position:absolute; top:-14px; left:50%; transform:translateX(-50%);
+    width:44px; height:22px; border-radius:6px;
+    background:linear-gradient(160deg,#B8B8B8,#7A7A7A);
+    box-shadow:0 3px 6px rgba(0,0,0,0.25);
+  }
+  .ticket-clip::after{
+    content:''; position:absolute; left:50%; top:50%; width:14px; height:14px;
+    background:var(--cream); border-radius:50%; transform:translate(-50%,-50%);
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,0.15);
+  }
+  .ticket h3{
+    margin:6px 0 2px; text-align:center; color:var(--chili-dark); font-size:1.1rem;
+    font-weight:800; letter-spacing:-0.01em;
+  }
+  .ticket .sub{ text-align:center; font-size:0.78rem; color:var(--ink-soft); margin-bottom:14px; }
+  .ticket-lines{ min-height:60px; margin-bottom:12px; }
+  .ticket-line{
+    display:flex; justify-content:space-between; gap:8px; padding:6px 0;
+    border-bottom:1px dashed var(--line); font-size:0.88rem;
+  }
+  .ticket-line .l-name{ flex:1; }
+  .ticket-line .l-qty{ color:var(--ink-soft); font-family:'Space Mono', monospace; }
+  .ticket-line .l-price{ font-weight:700; font-family:'Space Mono', monospace; white-space:nowrap; }
+  .ticket-empty{ text-align:center; color:var(--ink-soft); font-size:0.85rem; padding:14px 0; }
+  .ticket-total{
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding-top:10px; border-top:2px solid var(--ink);
+    font-weight:800; font-size:1.05rem; color:var(--chili-dark);
+  }
+  .ticket-total .amt{ font-family:'Space Mono', monospace; font-size:1.2rem; }
+  .save-btn{
+    width:100%; margin-top:16px; padding:14px; border:none; border-radius:12px;
+    background:linear-gradient(155deg, var(--herb), var(--herb-dark));
+    color:#fff; font-family:inherit; font-weight:800; font-size:1rem; letter-spacing:0.01em;
+    cursor:pointer; box-shadow:0 8px 18px rgba(67,96,47,0.35); transition:transform .12s;
+  }
+  .save-btn:active{ transform:scale(0.98); }
+  .save-btn:disabled{ opacity:0.4; cursor:default; box-shadow:none; }
+
+  /* ---------- Invoice list ---------- */
+  .list-head{ display:flex; align-items:center; justify-content:space-between; margin:18px 0 14px; flex-wrap:wrap; gap:10px;}
+  .list-head h2{ margin:0; font-size:1.15rem; color:var(--chili-dark); font-weight:800; }
+  .refresh-btn{
+    border:1.5px solid var(--line); background:#fff; padding:8px 14px; border-radius:10px;
+    font-family:inherit; font-weight:700; font-size:0.85rem; color:var(--ink-soft); cursor:pointer;
+  }
+  .invoice-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:14px; }
+  .invoice-card{
+    background:var(--paper); border-radius:16px; padding:16px 18px; box-shadow:var(--shadow);
+    border:1px solid var(--line); cursor:pointer; transition:transform .12s;
+  }
+  .invoice-card:hover{ transform:translateY(-2px); }
+  .invoice-card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+  .invoice-card .cust{ font-weight:800; font-size:1.02rem; color:var(--ink); }
+  .invoice-card .dt{ font-size:0.76rem; color:var(--ink-soft); margin-top:2px; }
+  .status-badge{
+    font-size:0.72rem; font-weight:800; padding:5px 10px; border-radius:20px; white-space:nowrap;
+    text-transform:uppercase; letter-spacing:0.03em;
+  }
+  .status-unpaid{ background:#FBE2DC; color:var(--chili-dark); }
+  .status-cash{ background:#E3EEDD; color:var(--herb-dark); }
+  .status-transfer{ background:#DCE7F5; color:#2C5289; }
+  .invoice-card .amt-line{ margin-top:12px; display:flex; justify-content:space-between; align-items:baseline; }
+  .invoice-card .amt-line .lbl{ font-size:0.8rem; color:var(--ink-soft); }
+  .invoice-card .amt-line .val{ font-family:'Space Mono', monospace; font-weight:800; font-size:1.1rem; color:var(--chili-dark); }
+  .empty-state{ text-align:center; padding:60px 20px; color:var(--ink-soft); }
+  .empty-state .big{ font-size:2.4rem; margin-bottom:8px; }
+
+  /* ---------- Modal / receipt ---------- */
+  .modal{ position:fixed; inset:0; z-index:50; display:flex; align-items:flex-start; justify-content:center;
+    padding:24px 12px; overflow-y:auto; }
+  .modal.hidden{ display:none; }
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(74,46,24,0.45); backdrop-filter:blur(2px); }
+  .modal-card{
+    position:relative; z-index:1; background:transparent; width:100%; max-width:420px;
+    margin-top:10px;
+  }
+  .modal-close{
+    position:absolute; top:-14px; right:-6px; width:34px; height:34px; border-radius:50%;
+    border:none; background:var(--paper); color:var(--ink); font-size:1.1rem; font-weight:700;
+    cursor:pointer; box-shadow:var(--shadow); z-index:2;
+  }
+  .receipt-wrap{ background:var(--paper); border-radius:14px; box-shadow:0 20px 45px rgba(74,46,24,0.28); overflow:hidden; }
+  .receipt-torn{
+    height:14px;
+    background-image: radial-gradient(circle at 8px 0, transparent 8px, var(--paper) 8.5px);
+    background-size:16px 14px; background-repeat:repeat-x; background-color:transparent;
+  }
+  .receipt-torn.top{ transform:rotate(180deg); }
+  .receipt{ padding:26px 24px 22px; }
+  .receipt-shop{ text-align:center; margin-bottom:2px; }
+  .receipt-shop .r-title1{ font-size:1.15rem; font-weight:800; color:var(--chili-dark); letter-spacing:-0.01em; }
+  .receipt-shop .r-title2{ font-size:1.4rem; font-weight:800; color:var(--herb-dark); margin-top:-2px; }
+  .receipt-doc-title{
+    text-align:center; margin:14px 0 12px; font-weight:800; font-size:1rem;
+    letter-spacing:0.14em; text-transform:uppercase; color:var(--ink);
+  }
+  .receipt-meta{ font-size:0.86rem; color:var(--ink-soft); margin-bottom:2px; display:flex; justify-content:space-between; }
+  .receipt-meta b{ color:var(--ink); font-weight:700; }
+  .receipt-divider{ border:none; border-top:1.5px dashed var(--line); margin:14px 0; }
+  .receipt-items .r-item{ margin-bottom:9px; }
+  .receipt-items .r-item-name{ font-size:0.93rem; font-weight:700; color:var(--ink); }
+  .receipt-items .r-item-sub{
+    display:flex; justify-content:space-between; font-size:0.85rem; color:var(--ink-soft);
+    font-family:'Space Mono', monospace; margin-top:1px;
+  }
+  .receipt-total{
+    display:flex; justify-content:space-between; align-items:baseline; margin-top:6px;
+    padding-top:12px; border-top:2px solid var(--ink); font-weight:800;
+  }
+  .receipt-total .amt{ font-family:'Space Mono', monospace; font-size:1.35rem; color:var(--chili-dark); }
+  .receipt-status{ margin-top:14px; text-align:center; }
+  .receipt-footer{ text-align:center; margin-top:16px; font-size:0.76rem; color:var(--ink-soft); }
+
+  .status-picker{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+  .status-opt{
+    flex:1; min-width:100px; padding:10px 8px; border-radius:10px; border:1.5px solid var(--line);
+    background:#fff; font-family:inherit; font-weight:700; font-size:0.8rem; cursor:pointer;
+    color:var(--ink-soft); text-align:center; transition:all .15s;
+  }
+  .status-opt.sel-unpaid{ border-color:var(--chili); background:#FBE2DC; color:var(--chili-dark); }
+  .status-opt.sel-cash{ border-color:var(--herb); background:#E3EEDD; color:var(--herb-dark); }
+  .status-opt.sel-transfer{ border-color:#2C5289; background:#DCE7F5; color:#2C5289; }
+
+  .modal-actions{ display:flex; gap:10px; margin-top:14px; }
+  .action-btn{
+    flex:1; padding:13px; border-radius:12px; border:none; font-family:inherit; font-weight:800;
+    font-size:0.92rem; cursor:pointer;
+  }
+  .action-download{ background:linear-gradient(155deg, var(--yolk), #D98F26); color:#fff; box-shadow:0 8px 16px rgba(232,163,61,0.4); }
+  .action-delete{ background:#fff; border:1.5px solid var(--line); color:var(--chili-dark); flex:0 0 auto; padding:13px 16px; }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; padding:13px 22px; border-radius:12px; font-weight:600;
+    font-size:0.9rem; box-shadow:0 10px 24px rgba(0,0,0,0.25); opacity:0; transition:all .25s ease;
+    pointer-events:none; z-index:100; max-width:90vw; text-align:center;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .hint-banner{
+    background:rgba(92,122,82,0.1); border:1px solid rgba(92,122,82,0.25); color:var(--herb-dark);
+    padding:10px 16px; border-radius:12px; font-size:0.82rem; margin-bottom:16px; line-height:1.4;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">🍚</div>
+    <div class="brand-text">
+      <h1>Bếp nhà Mợ Hạnh</h1>
+      <p>Sổ ghi hoá đơn cơm nhà</p>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="order">🧾 Tạo hoá đơn</button>
+    <button class="tab-btn" data-tab="list">📋 Danh sách hoá đơn</button>
+  </div>
+</div>
+
+<main>
+  <!-- ORDER VIEW -->
+  <section class="view active" id="view-order">
+    <div class="order-layout">
+      <div>
+        <div class="card field-card">
+          <div class="field-row">
+            <div class="field">
+              <label>Tên khách hàng</label>
+              <input type="text" id="inputCustomer" placeholder="Nhập tên khách hàng" />
+            </div>
+            <div class="field">
+              <label>Tên thu ngân</label>
+              <input type="text" id="inputCashier" value="Ngọc" />
+            </div>
+          </div>
+        </div>
+        <div id="menuContainer"></div>
+      </div>
+
+      <div class="summary-col">
+        <div class="ticket">
+          <div class="ticket-clip"></div>
+          <h3>Hoá đơn tạm tính</h3>
+          <div class="sub" id="ticketCustomerLine">Chưa nhập tên khách hàng</div>
+          <div class="ticket-lines" id="ticketLines">
+            <div class="ticket-empty">Chưa chọn món nào 🍽️</div>
+          </div>
+          <div class="ticket-total">
+            <span>Tổng thanh toán</span>
+            <span class="amt" id="ticketTotal">0đ</span>
+          </div>
+          <button class="save-btn" id="saveBtn" disabled>Lưu hoá đơn</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIST VIEW -->
+  <section class="view" id="view-list">
+    <div class="hint-banner">💡 Danh sách hoá đơn được lưu chung — mọi người dùng cùng đường dẫn này (trên điện thoại hoặc máy tính khác) đều thấy và cập nhật được.</div>
+    <div class="list-head">
+      <h2>Tất cả hoá đơn</h2>
+      <button class="refresh-btn" id="refreshBtn">↻ Làm mới</button>
+    </div>
+    <div class="invoice-grid" id="invoiceGrid"></div>
+  </section>
+</main>
+
+<!-- RECEIPT MODAL -->
+<div class="modal hidden" id="receiptModal">
+  <div class="modal-backdrop" id="modalBackdrop"></div>
+  <div class="modal-card">
+    <button class="modal-close" id="modalCloseBtn">✕</button>
+    <div class="receipt-wrap" id="receiptCapture">
+      <div id="receiptRoot"></div>
+    </div>
+    <div class="status-picker" id="statusPicker"></div>
+    <div class="modal-actions">
+      <button class="action-btn action-download" id="downloadBtn">⬇ Tải ảnh hoá đơn (PNG)</button>
+      <button class="action-btn action-delete" id="deleteBtn" title="Xoá hoá đơn">🗑</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- MENU DATA ---------------- */
+const MENU = [
+  { cat:"Cơm cá", emoji:"🐟", items:[
+    { name:"Cơm cá hú kho", price:45 },
+    { name:"Cơm cá diêu hồng chiên tươi", price:45 },
+    { name:"Cơm cá biển chiên tươi", price:50 },
+    { name:"Cơm cá thác lác chiên tươi", price:50 },
+    { name:"Cơm cá diêu hồng chiên sốt cà", price:55 },
+  ]},
+  { cat:"Cơm thịt", emoji:"🍖", items:[
+    { name:"Cơm thịt luộc mắm dưa Đà Nẵng", price:50 },
+    { name:"Cơm thịt kho mắm ruốc", price:50 },
+    { name:"Cơm ba rọi chiên nước mắm", price:50 },
+    { name:"Cơm sườn cọng chiên sả ớt", price:55 },
+  ]},
+  { cat:"Cơm khác", emoji:"🥚", items:[
+    { name:"Cơm trứng chiên thịt băm", price:40 },
+    { name:"Cơm trứng luộc dằm mắm tỏi ớt", price:40 },
+    { name:"Cơm đùi gà chiên sốt mắm tỏi", price:50 },
+  ]},
+  { cat:"Món ăn nhẹ", emoji:"🥗", items:[
+    { name:"Bún thịt luộc mắm nêm", price:45 },
+    { name:"Nui xào bò", price:45 },
+    { name:"Mì xào bò", price:45 },
+  ]},
+  { cat:"Canh", emoji:"🍲", items:[
+    { name:"Canh bí xanh nấu thịt băm", price:35 },
+    { name:"Canh khoai mỡ thịt băm", price:35 },
+    { name:"Canh chua tôm", price:55 },
+    { name:"Canh khổ qua cá thác lác", price:55 },
+  ]},
+];
+
+/* ---------------- STATE ---------------- */
+let order = { qty:{} }; // name -> qty
+let currentInvoices = [];
+let openInvoiceId = null;
+
+/* ---------------- HELPERS ---------------- */
+function formatVND(k){ // k = price in thousand-VND units
+  return (k*1000).toLocaleString('vi-VN') + 'đ';
+}
+function formatDateTime(iso){
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2,'0');
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._tm);
+  showToast._tm = setTimeout(()=> t.classList.remove('show'), 2400);
+}
+function statusLabel(s){
+  return s==='cash' ? 'Tiền mặt' : s==='transfer' ? 'Chuyển khoản' : 'Chưa thanh toán';
+}
+function statusClass(s){
+  return s==='cash' ? 'status-cash' : s==='transfer' ? 'status-transfer' : 'status-unpaid';
+}
+
+/* ---------------- RENDER MENU ---------------- */
+function renderMenu(){
+  const root = document.getElementById('menuContainer');
+  root.innerHTML = '';
+  MENU.forEach(section=>{
+    const secEl = document.createElement('div');
+    secEl.className = 'card menu-section';
+    secEl.innerHTML = `
+      <div class="menu-section-head"><span class="emoji">${section.emoji}</span><h2>${section.cat}</h2></div>
+      <div class="menu-items"></div>
+    `;
+    const itemsEl = secEl.querySelector('.menu-items');
+    section.items.forEach(item=>{
+      const row = document.createElement('div');
+      row.className = 'menu-item';
+      row.innerHTML = `
+        <div class="menu-item-info">
+          <span class="name">${item.name}</span>
+          <span class="price">${formatVND(item.price)}</span>
+        </div>
+        <div class="qty-control">
+          <button class="qty-btn minus" aria-label="Giảm">−</button>
+          <span class="qty-val">0</span>
+          <button class="qty-btn plus" aria-label="Tăng">+</button>
+        </div>
+      `;
+      const qtyValEl = row.querySelector('.qty-val');
+      const minusBtn = row.querySelector('.minus');
+      const plusBtn = row.querySelector('.plus');
+      function sync(){
+        const q = order.qty[item.name] || 0;
+        qtyValEl.textContent = q;
+        minusBtn.disabled = q<=0;
+      }
+      minusBtn.addEventListener('click', ()=>{
+        const q = Math.max(0, (order.qty[item.name]||0) - 1);
+        if(q===0) delete order.qty[item.name]; else order.qty[item.name] = q;
+        sync(); renderTicket();
+      });
+      plusBtn.addEventListener('click', ()=>{
+        order.qty[item.name] = (order.qty[item.name]||0) + 1;
+        sync(); renderTicket();
+      });
+      sync();
+      itemsEl.appendChild(row);
+    });
+    root.appendChild(secEl);
+  });
+}
+
+function getMenuItem(name){
+  for(const sec of MENU){ const f = sec.items.find(i=>i.name===name); if(f) return f; }
+  return null;
+}
+
+function computeOrderLines(){
+  return Object.keys(order.qty).map(name=>{
+    const item = getMenuItem(name);
+    const qty = order.qty[name];
+    const subtotal = item.price * qty;
+    return { name, qty, price:item.price, subtotal };
+  });
+}
+
+function renderTicket(){
+  const lines = computeOrderLines();
+  const linesEl = document.getElementById('ticketLines');
+  const totalEl = document.getElementById('ticketTotal');
+  const custLine = document.getElementById('ticketCustomerLine');
+  const cust = document.getElementById('inputCustomer').value.trim();
+  custLine.textContent = cust ? `Khách: ${cust}` : 'Chưa nhập tên khách hàng';
+
+  if(lines.length===0){
+    linesEl.innerHTML = '<div class="ticket-empty">Chưa chọn món nào 🍽️</div>';
+  } else {
+    linesEl.innerHTML = lines.map(l=>`
+      <div class="ticket-line">
+        <span class="l-name">${l.name}</span>
+        <span class="l-qty">×${l.qty}</span>
+        <span class="l-price">${formatVND(l.subtotal)}</span>
+      </div>
+    `).join('');
+  }
+  const total = lines.reduce((s,l)=>s+l.subtotal,0);
+  totalEl.textContent = formatVND(total);
+  document.getElementById('saveBtn').disabled = lines.length===0;
+}
+
+/* ---------------- SAVE INVOICE ---------------- */
+async function saveInvoice(){
+  const lines = computeOrderLines();
+  if(lines.length===0) return;
+  const customer = document.getElementById('inputCustomer').value.trim() || 'Khách lẻ';
+  const cashier = document.getElementById('inputCashier').value.trim() || 'Ngọc';
+  const total = lines.reduce((s,l)=>s+l.subtotal,0);
+  const id = 'inv_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+  const invoice = {
+    id, customer, cashier,
+    createdAt: new Date().toISOString(),
+    items: lines,
+    total,
+    status: 'unpaid'
+  };
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = 'Đang lưu...';
+  try{
+    await window.storage.set('invoices:'+id, JSON.stringify(invoice), true);
+    order = { qty:{} };
+    document.getElementById('inputCustomer').value = '';
+    renderMenu();
+    renderTicket();
+    showToast('Đã lưu hoá đơn ✓');
+    await loadInvoices();
+    switchTab('list');
+    openReceipt(invoice);
+  }catch(e){
+    console.error(e);
+    showToast('Lỗi khi lưu hoá đơn, thử lại nhé');
+  }finally{
+    btn.textContent = 'Lưu hoá đơn';
+    btn.disabled = false;
+  }
+}
+
+/* ---------------- LOAD / LIST INVOICES ---------------- */
+async function loadInvoices(){
+  const grid = document.getElementById('invoiceGrid');
+  grid.innerHTML = '<div class="empty-state">Đang tải hoá đơn...</div>';
+  try{
+    const listRes = await window.storage.list('invoices:', true);
+    const keys = (listRes && listRes.keys) || [];
+    const invoices = [];
+    for(const key of keys){
+      try{
+        const res = await window.storage.get(key, true);
+        if(res && res.value) invoices.push(JSON.parse(res.value));
+      }catch(e){ /* skip broken entry */ }
+    }
+    invoices.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
+    currentInvoices = invoices;
+    renderInvoiceGrid();
+  }catch(e){
+    console.error(e);
+    grid.innerHTML = '<div class="empty-state"><div class="big">⚠️</div>Không tải được danh sách hoá đơn.</div>';
+  }
+}
+
+function renderInvoiceGrid(){
+  const grid = document.getElementById('invoiceGrid');
+  if(currentInvoices.length===0){
+    grid.innerHTML = '<div class="empty-state"><div class="big">🧾</div>Chưa có hoá đơn nào. Tạo hoá đơn đầu tiên ở tab bên cạnh nhé!</div>';
+    return;
+  }
+  grid.innerHTML = '';
+  currentInvoices.forEach(inv=>{
+    const card = document.createElement('div');
+    card.className = 'invoice-card';
+    card.innerHTML = `
+      <div class="invoice-card-top">
+        <div>
+          <div class="cust">${inv.customer}</div>
+          <div class="dt">${formatDateTime(inv.createdAt)} · Thu ngân: ${inv.cashier}</div>
+        </div>
+        <span class="status-badge ${statusClass(inv.status)}">${statusLabel(inv.status)}</span>
+      </div>
+      <div class="amt-line">
+        <span class="lbl">${inv.items.length} món</span>
+        <span class="val">${formatVND(inv.total)}</span>
+      </div>
+    `;
+    card.addEventListener('click', ()=> openReceipt(inv));
+    grid.appendChild(card);
+  });
+}
+
+/* ---------------- RECEIPT MODAL ---------------- */
+function buildReceiptHTML(inv){
+  return `
+    <div class="receipt-torn top"></div>
+    <div class="receipt">
+      <div class="receipt-shop">
+        <div class="r-title1">Bếp nhà</div>
+        <div class="r-title2">Mợ Hạnh</div>
+      </div>
+      <div class="receipt-doc-title">Hoá đơn</div>
+      <div class="receipt-meta"><span>Ngày giờ</span><b>${formatDateTime(inv.createdAt)}</b></div>
+      <div class="receipt-meta"><span>Tên thu ngân</span><b>${inv.cashier}</b></div>
+      <div class="receipt-meta"><span>Tên khách hàng</span><b>${inv.customer}</b></div>
+      <hr class="receipt-divider" />
+      <div class="receipt-items">
+        ${inv.items.map(l=>`
+          <div class="r-item">
+            <div class="r-item-name">${l.name}</div>
+            <div class="r-item-sub"><span>SL: ${l.qty} × ${formatVND(l.price)}</span><span>${formatVND(l.subtotal)}</span></div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="receipt-total"><span>Tổng thanh toán</span><span class="amt">${formatVND(inv.total)}</span></div>
+      <div class="receipt-status"><span class="status-badge ${statusClass(inv.status)}">${statusLabel(inv.status)}</span></div>
+      <div class="receipt-footer">Cảm ơn quý khách đã ủng hộ Bếp nhà Mợ Hạnh 🌿</div>
+    </div>
+    <div class="receipt-torn"></div>
+  `;
+}
+
+function renderStatusPicker(inv){
+  const picker = document.getElementById('statusPicker');
+  const opts = [
+    { key:'unpaid', label:'Chưa thanh toán', cls:'sel-unpaid' },
+    { key:'cash', label:'Tiền mặt', cls:'sel-cash' },
+    { key:'transfer', label:'Chuyển khoản', cls:'sel-transfer' },
+  ];
+  picker.innerHTML = opts.map(o=>`
+    <button class="status-opt ${inv.status===o.key ? o.cls : ''}" data-status="${o.key}">${o.label}</button>
+  `).join('');
+  picker.querySelectorAll('.status-opt').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const newStatus = btn.dataset.status;
+      inv.status = newStatus;
+      try{
+        await window.storage.set('invoices:'+inv.id, JSON.stringify(inv), true);
+        showToast('Đã cập nhật trạng thái');
+        document.getElementById('receiptRoot').innerHTML = buildReceiptHTML(inv);
+        renderStatusPicker(inv);
+        const idx = currentInvoices.findIndex(i=>i.id===inv.id);
+        if(idx>-1) currentInvoices[idx] = inv;
+        renderInvoiceGrid();
+      }catch(e){
+        console.error(e);
+        showToast('Không cập nhật được, thử lại nhé');
+      }
+    });
+  });
+}
+
+function openReceipt(inv){
+  openInvoiceId = inv.id;
+  document.getElementById('receiptRoot').innerHTML = buildReceiptHTML(inv);
+  renderStatusPicker(inv);
+  document.getElementById('receiptModal').classList.remove('hidden');
+}
+function closeReceipt(){
+  document.getElementById('receiptModal').classList.add('hidden');
+  openInvoiceId = null;
+}
+
+async function downloadReceipt(){
+  const inv = currentInvoices.find(i=>i.id===openInvoiceId);
+  const target = document.getElementById('receiptCapture');
+  const dlBtn = document.getElementById('downloadBtn');
+  dlBtn.disabled = true; dlBtn.textContent = 'Đang tạo ảnh...';
+  try{
+    const canvas = await html2canvas(target, { scale:3, backgroundColor:'#FBF3E4', useCORS:true });
+    const link = document.createElement('a');
+    const custSlug = (inv ? inv.customer : 'hoa-don').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/gi,'d').replace(/[^a-zA-Z0-9]+/g,'-');
+    link.download = `hoa-don-${custSlug || 'khach'}-${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('Đã tải ảnh hoá đơn ✓');
+  }catch(e){
+    console.error(e);
+    showToast('Không tạo được ảnh, thử lại nhé');
+  }finally{
+    dlBtn.disabled = false; dlBtn.textContent = '⬇ Tải ảnh hoá đơn (PNG)';
+  }
+}
+
+async function deleteInvoice(){
+  if(!openInvoiceId) return;
+  if(!confirm('Xoá hoá đơn này? Hành động không thể hoàn tác.')) return;
+  try{
+    await window.storage.delete('invoices:'+openInvoiceId, true);
+    showToast('Đã xoá hoá đơn');
+    closeReceipt();
+    await loadInvoices();
+  }catch(e){
+    console.error(e);
+    showToast('Không xoá được, thử lại nhé');
+  }
+}
+
+/* ---------------- TABS ---------------- */
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.tab===tab));
+  document.getElementById('view-order').classList.toggle('active', tab==='order');
+  document.getElementById('view-list').classList.toggle('active', tab==='list');
+  if(tab==='list') loadInvoices();
+}
+
+/* ---------------- INIT ---------------- */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=> switchTab(btn.dataset.tab));
+});
+document.getElementById('inputCustomer').addEventListener('input', renderTicket);
+document.getElementById('saveBtn').addEventListener('click', saveInvoice);
+document.getElementById('refreshBtn').addEventListener('click', loadInvoices);
+document.getElementById('modalCloseBtn').addEventListener('click', closeReceipt);
+document.getElementById('modalBackdrop').addEventListener('click', closeReceipt);
+document.getElementById('downloadBtn').addEventListener('click', downloadReceipt);
+document.getElementById('deleteBtn').addEventListener('click', deleteInvoice);
+
+renderMenu();
+renderTicket();
+loadInvoices();
+</script>
+</body>
+</html>
